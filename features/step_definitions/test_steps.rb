@@ -9,15 +9,15 @@ When(/^в ответ я должен получить следующие пол�
   
 end
 
-When(/^проверяем доступность следующего API "([^"]*)"$/) do |uri|
-  res = get_response(uri)
+When(/^проверяем доступность следующего API "([^"]*)"$/) do |url|
+  res = get_response(url)
   if res.code != '200'
     raise "API недоступен. Статус: #{res.code}"
   end
 end
 
 When(/^передаю запрос "([^"]*)" c параметром "([^"]*)"$/) do |request, param|
-  url = URI("#{request}#{param}")
+  url = URI("#{request}#{URI::encode(param)}")
   @response = get_request(url)
 end
 
@@ -43,11 +43,13 @@ When(/^проверяю, что адрес редиректа с адреса "(
   end
 end
 
-When(/^проверяю наличие поля в ответе "([^"]*)"$/) do |field|
+When(/^в поле "([^"]*)" я должен увидеть значение "([^"]*)"$/) do |field, text|
  res = parse_json(@response)
- puts res['result'].to_json
+ # puts res['result'].to_json
  test = parse_json(res['result'].to_json)
- puts test[0]
+ text_field = test[0][field]
+ # expect(text_field).to be(text.to_s)
+ expect(text_field) == text
 end
 
 When(/^количество редиректов с адреса "([^"]*)" равно "([^"]*)"$/) do |url, redirect_count|
@@ -60,9 +62,4 @@ When(/^количество редиректов с адреса "([^"]*)" ра�
   puts count
   puts redirect_count
   expect(count).to eq redirect_count.to_i
-  # if count != redirect_count.to_i
-  #   raise "Количество редиректор не совпадает"
-  # else
-  #
-  # end
 end
