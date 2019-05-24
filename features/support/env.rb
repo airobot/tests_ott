@@ -11,6 +11,9 @@ def get_response(url)
 end
 
 def parse_json(json_string)
-  # puts JSON.parse(json_string)
   JSON.parse(json_string)
+end
+
+def json_results
+  parse_json(parse_json(@response)['result'].to_json)
 end

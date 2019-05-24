@@ -1,14 +1,7 @@
 require 'rspec'
 
+
 # Описание тестовых шагов
-When(/^выполняю запрос$/) do
-  
-end
-
-When(/^в ответ я должен получить следующие поля "([^"]*)"$/) do |arg|
-  
-end
-
 When(/^проверяем доступность следующего API "([^"]*)"$/) do |url|
   res = get_response(url)
   if res.code != '200'
@@ -30,10 +23,6 @@ When(/^проверяю осуществляется ли редирект с с
   end
 end
 
-When(/^получаю адрес редиректа с сайта "([^"]*)"$/) do |arg|
-
-end
-
 When(/^проверяю, что адрес редиректа с адреса "([^"]*)" соответствует следующему адресу "([^"]*)"$/) do | first_url, last_url|
   request = get_response(first_url)
   if request['location'] == last_url
@@ -44,11 +33,7 @@ When(/^проверяю, что адрес редиректа с адреса "(
 end
 
 When(/^в поле "([^"]*)" я должен увидеть значение "([^"]*)"$/) do |field, text|
- res = parse_json(@response)
- # puts res['result'].to_json
- test = parse_json(res['result'].to_json)
- text_field = test[0][field]
- # expect(text_field).to be(text.to_s)
+ text_field = json_results[0][field]
  expect(text_field) == text
 end
 
@@ -59,7 +44,14 @@ When(/^количество редиректов с адреса "([^"]*)" ра�
     url = request['location']
     count +=1
   end while request['location'] != nil
-  puts count
-  puts redirect_count
   expect(count).to eq redirect_count.to_i
+end
+
+When(/^проверяю наличие значения "([^"]*)" в полях "([^"]*)" в ответе для типа "([^"]*)"$/) do |text, field, type|
+  for i in 0..(json_results.count - 1)
+    text_field = json_results[i][field]
+    if json_results[i]['type'] == type
+      expect(text_field.downcase).to include(text.downcase)
+    end
+  end
 end
